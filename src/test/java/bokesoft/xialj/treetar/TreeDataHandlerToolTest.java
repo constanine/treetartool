@@ -44,7 +44,7 @@ public class TreeDataHandlerToolTest{
 		showExtendResult(resulteL2,exSourceIns,exSourceEXs);
 		showExtendResult(resulteL2,exSourceIns,exSourceEXs);
 		
-		Set<Integer> resultfp = TreeDataTarTool.findParents(cacheData, 32125, true);
+		Set<Integer> resultfp = TreeDataTarTool.findDirectAncestors(cacheData, 32125, true);
 		showFindParentsResult(resultfp,32125);
 		
 		try{

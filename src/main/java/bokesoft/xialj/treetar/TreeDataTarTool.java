@@ -139,14 +139,28 @@ public class TreeDataTarTool {
 		return dealedData;
 	}
 	
+
 	/**
-	 * 根据当前节点,向上其所有祖先,结果不包含自己
+	 * 根据当前节点,向上其所有直系祖先,结果不包含自己
 	 * @param cacheData 通过初始化后的树形数据缓存
 	 * @param id
+	 * @param targetLevel
 	 * @param ignoreMissedIDs 是否忽略不存在的id,如果不忽略则发现就报错,如果忽略则不处理
 	 * @return
 	 */
-	public static Set<Integer> findParents(TreeCacheData cacheData,int id,boolean ignoreMissedIDs){
+	public static Set<Integer> findDirectAncestors(TreeCacheData cacheData,int id,boolean ignoreMissedIDs){
+		return findDirectAncestors(cacheData, id, -1, ignoreMissedIDs);
+	}
+	
+	/**
+	 * 根据当前节点,向上其直系祖先,结果不包含自己
+	 * @param cacheData 通过初始化后的树形数据缓存
+	 * @param id
+	 * @param targetLevel 父系祖先的拦截level参数
+	 * @param ignoreMissedIDs 是否忽略不存在的id,如果不忽略则发现就报错,如果忽略则不处理
+	 * @return
+	 */
+	public static Set<Integer> findDirectAncestors(TreeCacheData cacheData,int id,int targetLevel,boolean ignoreMissedIDs){
 		Set<Integer> result = new HashSet<Integer>();
 		Map<Integer, TreeUnit> treeDataCache = cacheData.getTreeDataCache();
 		TreeUnit tbean = treeDataCache.get(id);
@@ -154,16 +168,38 @@ public class TreeDataTarTool {
 			if(ignoreMissedIDs){
 				throw new RuntimeException(">>> [ID]"+id+",在树结构中不不存在,请检查");
 			}
-		}else{
+		}
+		int curTreeLevel = tbean.getTreeLevel();
+		if(targetLevel<curTreeLevel){
 			int parentID = tbean.getParentId();
 			result.add(parentID);
-			while(parentID > 0){
+			while(parentID > 0 && targetLevel<curTreeLevel){
 				TreeUnit pbean = treeDataCache.get(parentID);
 				parentID = pbean.getParentId();
+				curTreeLevel = tbean.getTreeLevel();
 				result.add(parentID);
 			}
 		}		
 		return result;
+	}
+	
+	/**
+	 * 根据当前节点,向上其所有祖先,结果不包含自己
+	 * @param cacheData 通过初始化后的树形数据缓存
+	 * @param id
+	 * @param ignoreMissedIDs 是否忽略不存在的id,如果不忽略则发现就报错,如果忽略则不处理
+	 * @return
+	 */
+	public static int findParent(TreeCacheData cacheData,int id,boolean ignoreMissedIDs){
+		Map<Integer, TreeUnit> treeDataCache = cacheData.getTreeDataCache();
+		TreeUnit tbean = treeDataCache.get(id);
+		if(null == tbean){
+			if(ignoreMissedIDs){
+				throw new RuntimeException(">>> [ID]"+id+",在树结构中不不存在,请检查");
+			}
+		}
+		int parentID = tbean.getParentId();
+		return parentID;
 	}
 		
 	/**
